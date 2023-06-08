@@ -3,13 +3,13 @@
 import type { Bookmark } from "@/app/api/bookmarks/route";
 import { TagRequest } from "@/app/api/bookmarks/tag/route";
 import classNames from "classnames";
-import { DateTime } from "luxon";
 import { NonEmptyList } from "purify-ts";
 import { useMemo, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { HiFolder, HiOutlineTrash, HiPlus } from "react-icons/hi2";
+import { HiOutlineTrash, HiPlus } from "react-icons/hi2";
 import { getBookmarksWithTags, getDuplicates, getUniqueTags } from "../bookmark-utils";
 import { getBookmarksForRemoval, isFilterMatch, isSelfOrParent } from "../utils";
+import { BookmarkItem } from "./BookmarkItem";
 import { Button } from "./Button";
 import { Checkbox } from "./Checkbox";
 import { Panel } from "./Panels";
@@ -18,6 +18,7 @@ import { Tag } from "./Tag";
 export interface BookmarksProps {
   bookmarks: Bookmark[];
 }
+
 export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
   const [bookmarks, setBookmarks] = useState(initialBookmarks);
   const [filterTextInput, setFilterText] = useState<string>("");
@@ -148,68 +149,17 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
               isSelected: selectedBookmarks.includes(bookmark)
             }))
             .map((bookmark) =>
-              <li
+              <BookmarkItem
                 key={bookmark.id}
-                className={classNames(
-                  "flex",
-                  bookmark.isSelected ?
-                    "bg-blue-100 hover:bg-blue-200"
-                    : "bg-white hover:bg-gray-50"
-                )}
-              >
-                <Panel>
-                  {bookmark.url
-                    ? (
-                      <div className="flex gap-4">
-                        <input type="checkbox" onChange={() => select(bookmark)} checked={bookmark.isSelected} />
-
-                        {
-                          /*
-                        bookmark.parentId && bookmark.parentId !== "1" && <div onClick={() =>
-                          List.find(x => String(x.id) === bookmark.parentId, bookmarks)
-                            .ifJust(select)
-                        }>
-                          Select parent
-                        </div>
-                        */
-                        }
-                        <div className="flex flex-col">
-
-                          <h2 className="flex flex-auto font-bold" onClick={() => select(bookmark)}>{bookmark.title}</h2>
-
-                          <div className="flex gap-4">
-                            <p className="opacity-50 text-xs">Added {DateTime.fromISO(bookmark.dateAddedUTC).toFormat("LLL dd, yyyy 'at' HH:mm")}</p>
-                            {
-                              bookmark.tags &&
-                              <div className="flex items-center gap-1">
-                                {bookmark.tags.map((tag, i) =>
-                                  <>
-                                    {i !== 0 && <svg viewBox="0 0 2 2" className="h-0.5 w-0.5 fill-current">
-                                      <circle cx="1" cy="1" r="1"></circle>
-                                    </svg>}
-                                    <button onClick={() => setSelected(getBookmarksWithTags([tag], bookmarks))} className="text-xs" key={tag}>{tag}</button>
-                                  </>
-                                )
-                                }
-                              </div>
-                            }
-                          </div>
-                        </div>
-                      </div>
-                    )
-                    : (
-                      <div className="flex items-center gap-2 uppercase text-gray-400">
-                        <input type="checkbox" onChange={() => select(bookmark)} checked={selectedBookmarks.includes(bookmark)} />
-                        <HiFolder />
-                        <p onClick={() => select(bookmark)}>{bookmark.title}</p>
-                      </div>
-                    )
-                  }
-                </Panel>
-              </li>
+                bookmark={bookmark}
+                onSelect={select}
+                onSelectTag={tag => setSelected(getBookmarksWithTags([tag], bookmarks))}
+                isSelected={bookmark.isSelected}
+              />
             )}
         </ul>
       </main>
+
       {showGroomingTools &&
         (
           <aside>
