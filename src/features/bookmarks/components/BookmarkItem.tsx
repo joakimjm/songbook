@@ -35,7 +35,7 @@ export const BookmarkItem = ({ bookmark, isSelected, onSelect, onSelectTag, onRe
       {bookmark.url
         ? (
           <div className="flex flex-auto gap-4">
-            <div className="flex"><input type="checkbox" onChange={() => onSelect(bookmark)} checked={isSelected} /></div>
+            <div className="flex"><input type="checkbox" onChange={() => undefined} checked={isSelected} /></div>
             <div className="flex flex-col">
               <h2 className="flex flex-auto font-bold">
                 {bookmark.title}
