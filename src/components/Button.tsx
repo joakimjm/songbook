@@ -6,7 +6,15 @@ export const Button = (props: ComponentProps<"button">) =>
     type="button"
     {...props}
     className={classNames(
-      "border rounded-lg px-2 text-sm disabled:border-gray-300 disabled:text-gray-300 disabled:bg-white items-center",
+      "flex border rounded-lg px-2 whitespace-nowrap text-sm disabled:border-gray-300 disabled:text-gray-300 disabled:bg-white items-center",
+      props.className
+    )}
+  />
+
+export const ButtonLink = (props: ComponentProps<"a">) =>
+  <a {...props}
+    className={classNames(
+      "flex border rounded-lg px-2 text-sm disabled:border-gray-300 disabled:text-gray-300 disabled:bg-white items-center",
       props.className
     )}
   />

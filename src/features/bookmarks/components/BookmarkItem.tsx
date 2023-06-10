@@ -2,8 +2,7 @@ import { Bookmark } from "@/app/api/bookmarks/route";
 import classNames from "classnames";
 import { DateTime } from "luxon";
 import { Fragment } from "react";
-import { GiBroom } from "react-icons/gi";
-import { HiFolder } from "react-icons/hi2";
+import { HiFolder, HiOutlineArrowTopRightOnSquare, HiOutlinePencilSquare, HiOutlineTrash, HiSparkles } from "react-icons/hi2";
 import { Panel } from "../../../components/Panels";
 import { tryGetGroomedTitle } from "../bookmark-utils";
 
@@ -13,40 +12,36 @@ interface BookmarkItemProps {
   onSelect: (bookmark: Bookmark) => void;
   onSelectTag: (tag: string) => void;
   onRename: (newName: string) => void;
+  onRemove: () => void;
 }
-export const BookmarkItem = ({ bookmark, isSelected, onSelect, onSelectTag, onRename }: BookmarkItemProps) =>
+export const BookmarkItem = ({ bookmark, isSelected, onSelect, onSelectTag, onRename, onRemove }: BookmarkItemProps) =>
 (
   <li
     className={classNames(
       "flex",
-      isSelected ?
-        "bg-blue-100 hover:bg-blue-200"
+      isSelected
+        ? "bg-blue-100 hover:bg-blue-200"
         : "bg-white hover:bg-gray-50"
     )}
   >
-    <Panel>
+    <Panel className="flex flex-auto" onClick={() => {
+      console.log("clicked");
+
+      return onSelect(bookmark);
+    }}>
       {bookmark.url
         ? (
-          <div className="flex gap-4">
-            <input type="checkbox" onChange={() => onSelect(bookmark)} checked={isSelected} />
+          <div className="flex flex-auto gap-4">
+            <div className="flex"><input type="checkbox" onChange={() => onSelect(bookmark)} checked={isSelected} /></div>
             <div className="flex flex-col">
-              <h2 className="flex flex-auto font-bold" onClick={() => onSelect(bookmark)}>
-                {
-                  tryGetGroomedTitle(bookmark)
-                    .map(groomedTitle =>
-                      <button
-                        type="button"
-                        key={groomedTitle}
-                        title={groomedTitle}
-                        onClick={() => onRename(groomedTitle)}
-                        className="inline text-yellow-700 mr-1"
-                      ><GiBroom /></button>
-                    )
-                    .extract()
-                }
+              <h2 className="flex flex-auto font-bold">
                 {bookmark.title}
               </h2>
-              <p>{tryGetGroomedTitle(bookmark).extract()}</p>
+              {
+                tryGetGroomedTitle(bookmark)
+                  .map(groomedTitle => <p key="">{groomedTitle}</p>)
+                  .extract()
+              }
               <div className="flex gap-4">
                 <p className="opacity-50 text-xs">Added {DateTime.fromISO(bookmark.dateAddedUTC).toFormat("LLL dd, yyyy 'at' HH:mm")}</p>
                 {
@@ -66,8 +61,32 @@ export const BookmarkItem = ({ bookmark, isSelected, onSelect, onSelectTag, onRe
               </div>
             </div>
 
-            <div className="flex items-start">
+            <div className="flex flex-auto justify-end items-center gap-2">
+              {
+                tryGetGroomedTitle(bookmark)
+                  .map(groomedTitle =>
+                    <button
+                      type="button"
+                      key={groomedTitle}
+                      title={groomedTitle}
+                      onClick={() => {
+                        if (confirm(`Want to rename this bookmark to "${groomedTitle}"?`)) {
+                          onRename(groomedTitle)
+                        }
+                      }}
 
+                    ><HiSparkles className="text-yellow-500" /></button>
+                  )
+                  .extract()
+              }
+              <button type="button" title="Remove" className="p-2" onClick={onRemove}><HiOutlineTrash /></button>
+              <button type="button" title="Rename" className="p-2" onClick={() => {
+                const newName = prompt("Rename bookmark", bookmark.title);
+                if (newName && bookmark.title !== newName) {
+                  onRename(newName);
+                }
+              }}><HiOutlinePencilSquare /></button>
+              <a title="Rename" className="p-2" href={bookmark.url} target="_blank"><HiOutlineArrowTopRightOnSquare /></a>
             </div>
           </div>
         )

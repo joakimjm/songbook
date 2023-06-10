@@ -24,7 +24,7 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
   const filterText = filterTextInput.trim().toLocaleLowerCase();
   const [selectedBookmarks, setSelected] = useState<Bookmark[]>([]);
   const [showFolders, setShowFolders] = useState<boolean>(false);
-  const [showGroomingTools, setShowGroomingTools] = useState<boolean>(true);
+  const [showGroomingTools, setShowGroomingTools] = useState<boolean>(false);
 
   const onSelect = (bookmark: Bookmark): void =>
     setSelected(selection =>
@@ -66,7 +66,11 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
       <header className="flex flex-col border-b shadow-md z-10">
         <div className="flex border-b">
           <div className="w-5/6">
-            <input type="search" placeholder="Search" className="w-full text-center text-lg p-4" value={filterTextInput}
+            <input type="search" placeholder="Search"
+              className={classNames("w-full text-center text-lg p-4", {
+                "bg-blue-100": filterText.length > 0
+              })}
+              value={filterTextInput}
               onChange={e => {
                 setFilterText(e.target.value);
                 setSelected([]);
@@ -78,8 +82,8 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
           </Panel>
         </div>
 
-        <div className="flex">
-          <Panel className="flex gap-4">
+        <Panel className="flex flex-col mb-2 gap-2">
+          <div className="flex gap-4">
             <Checkbox label={selectedBookmarks.length > 0 ? "Deselect all" : `Select all (${filteredBookmarks.length})`}
               checked={selectedBookmarks.length > 0}
               onChange={() => selectedBookmarks.length > 0 ? setSelected([]) : setSelected(filteredBookmarks)} />
@@ -136,8 +140,7 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
               }}>
               <HiOutlineTrash className="inline -ml-1.5 -mt-0.5" /> Remove
             </Button>
-
-          </Panel>
+          </div>
           <div className="flex flex-auto items-center">
             {usedTags.map(x =>
               <Tag
@@ -147,24 +150,38 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
               >{x}</Tag>
             )}
           </div>
-        </div>
+        </Panel>
       </header>
 
       <main className="overflow-scroll">
         <ul className="divide-y">
           {filteredBookmarks
             .map(bookmark => ({
-              ...bookmark,
+              bookmark,
               isSelected: selectedBookmarks.includes(bookmark)
             }))
-            .map((bookmark) =>
+            .map(({ bookmark, isSelected }) =>
               <BookmarkItem
                 key={bookmark.id}
                 bookmark={bookmark}
                 onSelect={onSelect}
+                onRemove={async () => {
+                  if (!confirm(`Are you sure you want to delete ${bookmark.title}?`)) {
+                    return;
+                  }
+
+                  const result = await fetch(bookmark.links.self, { method: "DELETE" });
+                  if (!result.ok) {
+                    alert("Failed to delete bookmark");
+                    return;
+                  }
+
+                  setBookmarks(bookmarks => bookmarks.filter(x => x.id !== bookmark.id));
+                  setSelected(selected => selected.filter(x => x.id !== bookmark.id));
+                }}
                 onSelectTag={tag => setSelected(getBookmarksWithTags([tag], bookmarks))}
                 onRename={(title) => onRename(bookmark, title)}
-                isSelected={bookmark.isSelected}
+                isSelected={isSelected}
               />
             )}
         </ul>
@@ -176,7 +193,11 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
             <Panel className="flex gap-4">
               <h1>Grooming</h1>
 
-              <Button onClick={() => setSelected(bookmarks => getDuplicates(bookmarks))}>
+              <Button onClick={() => {
+                console.log("what the rfuck");
+
+                return setSelected(getDuplicates(bookmarks));
+              }}>
                 Select duplicates ({getDuplicates(filteredBookmarks).length})
               </Button>
 

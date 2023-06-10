@@ -20,6 +20,7 @@ export type Bookmark = {
 
 export const getBookmarks = async (): Promise<Bookmark[]> =>
   (JSON.parse(await readFile(path.join(process.cwd(), "public/bookmarks.json"), "utf-8")) as Bookmark[])
+    .sort((a, b) => a.title.localeCompare(b.title))
     .map(x => ({
       ...x,
       links: {
