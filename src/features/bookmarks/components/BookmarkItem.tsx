@@ -24,10 +24,13 @@ export const BookmarkItem = ({ bookmark, isSelected, onSelect, onSelectTag, onRe
         : "bg-white hover:bg-gray-50"
     )}
   >
-    <Panel className="flex flex-auto" onClick={() => {
-      console.log("clicked");
+    <Panel className="flex flex-auto" onClick={e => {
+      const clicked = e.target as HTMLElement
+      if (e.isDefaultPrevented() || clicked.closest("button") || clicked.closest("a")) {
+        return;
+      }
 
-      return onSelect(bookmark);
+      onSelect(bookmark);
     }}>
       {bookmark.url
         ? (
