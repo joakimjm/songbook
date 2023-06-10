@@ -1,5 +1,3 @@
-"use client";
-
 import type { Bookmark } from "@/app/api/bookmarks/route";
 import { TagRequest } from "@/app/api/bookmarks/tag/route";
 import classNames from "classnames";
@@ -7,13 +5,14 @@ import { NonEmptyList } from "purify-ts";
 import { useMemo, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { HiOutlineTrash, HiPlus } from "react-icons/hi2";
+import { Button } from "../../../components/Button";
+import { Checkbox } from "../../../components/Checkbox";
+import { Panel } from "../../../components/Panels";
+import { Tag } from "../../../components/Tag";
 import { getBookmarksWithTags, getDuplicates, getUniqueTags } from "../bookmark-utils";
 import { getBookmarksForRemoval, isFilterMatch, isSelfOrParent } from "../utils";
 import { BookmarkItem } from "./BookmarkItem";
-import { Button } from "./Button";
-import { Checkbox } from "./Checkbox";
-import { Panel } from "./Panels";
-import { Tag } from "./Tag";
+import { Grooming } from "./Grooming";
 
 export interface BookmarksProps {
   bookmarks: Bookmark[];
@@ -27,12 +26,22 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
   const [showFolders, setShowFolders] = useState<boolean>(false);
   const [showGroomingTools, setShowGroomingTools] = useState<boolean>(true);
 
-  const select = (bookmark: Bookmark): void =>
+  const onSelect = (bookmark: Bookmark): void =>
     setSelected(selection =>
       selection.includes(bookmark)
         ? selection.filter(x => x !== bookmark)
         : selection.concat(bookmarks.filter(b => isSelfOrParent(bookmark.id, b)))
     )
+  const onRename = async (bookmark: Bookmark, title: string) => {
+    const response = await fetch(bookmark.links.rename, {
+      method: "PUT",
+      body: JSON.stringify({ title })
+    });
+
+    if (response.ok) {
+      setBookmarks(bookmarks => bookmarks.map(x => x.id === bookmark.id ? { ...x, title } : x));
+    }
+  }
 
   useHotkeys("alt+f", (e) => {
     e.preventDefault();
@@ -152,8 +161,9 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
               <BookmarkItem
                 key={bookmark.id}
                 bookmark={bookmark}
-                onSelect={select}
+                onSelect={onSelect}
                 onSelectTag={tag => setSelected(getBookmarksWithTags([tag], bookmarks))}
+                onRename={(title) => onRename(bookmark, title)}
                 isSelected={bookmark.isSelected}
               />
             )}
@@ -163,16 +173,19 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
       {showGroomingTools &&
         (
           <aside>
-            <Panel>
+            <Panel className="flex gap-4">
               <h1>Grooming</h1>
 
-              <Button onClick={() => setSelected(getDuplicates(bookmarks))}>
+              <Button onClick={() => setSelected(bookmarks => getDuplicates(bookmarks))}>
                 Select duplicates ({getDuplicates(filteredBookmarks).length})
               </Button>
+
+              <Grooming bookmarks={bookmarks} onRename={onRename} />
             </Panel>
           </aside>
         )
       }
+
     </div>
   )
 }

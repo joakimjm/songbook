@@ -11,7 +11,7 @@ export interface TagRequest {
 
 export const POST = async (req: Request) => {
   const { bookmarkIds, tag } = (await req.json()) as TagRequest;
-  const final = getBookmarks()
+  const final = (await getBookmarks())
     .map(x =>
       bookmarkIds.includes(x.id)
         ? { ...x, tags: (x.tags && !x.tags.includes(tag)) ? x.tags.concat(tag) : [tag] }

@@ -1,7 +1,19 @@
 import { Bookmarks } from "@/features/bookmarks/components/Bookmarks";
-import { getBookmarks } from "../app/api/bookmarks/route";
+import { GetServerSideProps } from "next";
+import { Bookmark, getBookmarks } from "../app/api/bookmarks/route";
 
-export default function Home() {
-  const bookmarks = getBookmarks();
-  return <Bookmarks bookmarks={bookmarks} />;
+interface BookmarksPageProps {
+  bookmarks: Bookmark[];
 }
+
+const BookmarksPage = ({ bookmarks }: BookmarksPageProps) =>
+  <Bookmarks bookmarks={bookmarks} />
+
+export default BookmarksPage;
+
+export const getServerSideProps: GetServerSideProps<BookmarksPageProps> = async () =>
+({
+  props: {
+    bookmarks: await getBookmarks()
+  }
+});

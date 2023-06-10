@@ -1,18 +1,18 @@
+import { getBookmarksForRemoval } from "@/features/bookmarks/utils";
 import { writeFile } from "fs/promises";
 import { NextResponse } from "next/server";
-
-import { getBookmarksForRemoval } from "@/features/bookmarks/utils";
 import path from "path";
 import { NonEmptyList } from "purify-ts";
 import { getBookmarks } from "../route";
 
 export const POST = async (req: Request) => {
   const ids = (await req.json()) as number[];
+  const initialBookmarks = await getBookmarks();
   const bookmarksForRemoval = NonEmptyList.fromArray(ids)
     .map(toRemove =>
       toRemove.reduce((acc, cur) =>
         getBookmarksForRemoval(acc.final, cur),
-        getBookmarksForRemoval(getBookmarks(), toRemove[0])
+        getBookmarksForRemoval(initialBookmarks, toRemove[0])
       )
     )
 
