@@ -43,11 +43,41 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
     }
   }
 
-  useHotkeys("alt+f", (e) => {
-    e.preventDefault();
+  const onAddTag = async (tag: string) => {
+    const request: TagRequest = { tag, bookmarkIds: selectedBookmarks.map(x => x.id) };
+    const response = await fetch(
+      "/api/bookmarks/tag",
+      {
+        method: "POST",
+        body: JSON.stringify(request)
+      }).then(r => r.json());
+
+    setBookmarks(response);
+  }
+
+  const onPromptForAddTag = async () => {
+    const tag = prompt(`Enter tag to add to ${selectedBookmarks.length} bookmarks:`);
+    if (!tag) {
+      return;
+    }
+
+    onAddTag(tag);
+  }
+
+  useHotkeys("ctrl+f", (e) => {
     const input = document.querySelector("input[type=search]") as HTMLInputElement;
     input.focus();
-  })
+    input.selectionStart = 0;
+    input.selectionEnd = input.value.length;
+  }, { enableOnFormTags: true })
+
+  useHotkeys("ctrl+t", (e) => {
+    onPromptForAddTag();
+  }, { enableOnFormTags: true })
+
+  useHotkeys("ctrl+a", (e) => {
+    setSelected(filteredBookmarks);
+  }, { enableOnFormTags: true })
 
   const usedTags = useMemo(() => getUniqueTags(bookmarks), [bookmarks]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -91,22 +121,7 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
             <Button
               disabled={selectedBookmarks.length === 0}
               className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white"
-              onClick={async () => {
-                const tag = prompt(`Enter tag to add to ${selectedBookmarks.length} bookmarks:`);
-                if (!tag) {
-                  return;
-                }
-
-                const request: TagRequest = { tag, bookmarkIds: selectedBookmarks.map(x => x.id) };
-                const response = await fetch(
-                  "/api/bookmarks/tag",
-                  {
-                    method: "POST",
-                    body: JSON.stringify(request)
-                  }).then(r => r.json());
-
-                setBookmarks(response);
-              }}>
+              onClick={onPromptForAddTag}>
               <HiPlus className="inline -ml-1.5 -mt-0.5" /> Add tag
             </Button>
 
@@ -146,8 +161,22 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
               <Tag
                 key={x}
                 className={classNames("border", selectedTags.includes(x) ? "border-blue-500 bg-blue-200 text-blue-900" : "")}
-                onClick={() => setSelectedTags(tags => tags.includes(x) ? tags.filter(t => t !== x) : tags.concat(x))}
-              >{x}</Tag>
+                onClick={e => {
+                  const clicked = e.target as HTMLElement;
+                  if (clicked.closest("button")) {
+                    return;
+                  }
+
+                  setSelectedTags(tags => tags.includes(x) ? tags.filter(t => t !== x) : tags.concat(x))
+                  setSelected([]);
+                }}
+              >
+                {x}
+                {selectedBookmarks.length > 0 && <button title="Add tag to selection" type="button"
+                  className="ml-1"
+                  onClick={() => onAddTag(x)}
+                ><HiPlus /></button>}
+              </Tag>
             )}
           </div>
         </Panel>
