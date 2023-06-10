@@ -1,6 +1,5 @@
-import { readFile } from "fs/promises";
+import { getBookmarks } from "@/features/bookmarks/bookmark-persistence";
 import { NextResponse } from "next/server";
-import path from "path";
 
 interface BookmarkLinks {
   self: string;
@@ -17,17 +16,6 @@ export type Bookmark = {
   tags?: string[],
   links: BookmarkLinks
 };
-
-export const getBookmarks = async (): Promise<Bookmark[]> =>
-  (JSON.parse(await readFile(path.join(process.cwd(), "public/bookmarks.json"), "utf-8")) as Bookmark[])
-    .sort((a, b) => a.title.localeCompare(b.title))
-    .map(x => ({
-      ...x,
-      links: {
-        self: `/api/bookmarks/${x.id}`,
-        rename: `/api/bookmarks/${x.id}/rename`,
-      }
-    }));
 
 export const GET = async (_: Request) =>
   NextResponse.json(await getBookmarks());

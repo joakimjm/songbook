@@ -1,9 +1,8 @@
+import { getBookmarks, saveAllBookmarks } from "@/features/bookmarks/bookmark-persistence";
 import { getBookmarksForRemoval } from "@/features/bookmarks/utils";
-import { writeFile } from "fs/promises";
+
 import { NextResponse } from "next/server";
-import path from "path";
 import { NonEmptyList } from "purify-ts";
-import { getBookmarks } from "../route";
 
 export const POST = async (req: Request) => {
   const ids = (await req.json()) as number[];
@@ -18,7 +17,7 @@ export const POST = async (req: Request) => {
 
   if (bookmarksForRemoval.isJust()) {
     const { final } = bookmarksForRemoval.unsafeCoerce();
-    await writeFile(path.join(process.cwd(), "public/bookmarks.json"), JSON.stringify(final));
+    await saveAllBookmarks(final);
     return NextResponse.json(final);
   }
 

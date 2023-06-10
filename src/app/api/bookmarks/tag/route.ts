@@ -1,8 +1,5 @@
-import { writeFile } from "fs/promises";
+import { getBookmarks, saveAllBookmarks } from "@/features/bookmarks/bookmark-persistence";
 import { NextResponse } from "next/server";
-
-import path from "path";
-import { getBookmarks } from "../route";
 
 export interface TagRequest {
   bookmarkIds: number[];
@@ -18,6 +15,6 @@ export const POST = async (req: Request) => {
         : x
     );
 
-  await writeFile(path.join(process.cwd(), "public/bookmarks.json"), JSON.stringify(final));
+  await saveAllBookmarks(final);
   return NextResponse.json(final);
 }

@@ -1,6 +1,7 @@
+import { getBookmarks } from "@/features/bookmarks/bookmark-persistence";
 import { Bookmarks } from "@/features/bookmarks/components/Bookmarks";
 import { GetServerSideProps } from "next";
-import { Bookmark, getBookmarks } from "../app/api/bookmarks/route";
+import { Bookmark } from "../app/api/bookmarks/route";
 
 interface BookmarksPageProps {
   bookmarks: Bookmark[];

@@ -1,8 +1,6 @@
+import { getBookmarks, saveAllBookmarks } from "@/features/bookmarks/bookmark-persistence";
 import { tryParseId } from "@/features/bookmarks/utils";
-import { writeFile } from "fs/promises";
 import { NextResponse } from "next/server";
-import path from "path";
-import { getBookmarks } from "../../route";
 
 export const PUT = async (req: Request, { params: { id: requestedId }, }: { params: { id: string }; }) => {
   const { title }: { title: string; } = await req.json();
@@ -21,6 +19,6 @@ export const PUT = async (req: Request, { params: { id: requestedId }, }: { para
     }) : x)
   }))
     .unsafeCoerce();
-  await writeFile(path.join(process.cwd(), "public/bookmarks.json"), JSON.stringify(final));
+  await saveAllBookmarks(final);
   return new NextResponse(null, { status: 200 });
 }

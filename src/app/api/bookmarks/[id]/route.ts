@@ -1,9 +1,7 @@
-import { writeFile } from "fs/promises";
 import { NextResponse } from "next/server";
 
+import { getBookmarks, saveAllBookmarks } from "@/features/bookmarks/bookmark-persistence";
 import { getBookmarksForRemoval, tryGetBookmarkById, tryParseId } from "@/features/bookmarks/utils";
-import path from "path";
-import { getBookmarks } from "../route";
 
 export const DELETE = async (_: Request, { params: { id }, }: { params: { id: string }; }) => {
   const initialBookmarks = await getBookmarks();
@@ -13,7 +11,7 @@ export const DELETE = async (_: Request, { params: { id }, }: { params: { id: st
 
   if (bookmarksForRemoval.isJust()) {
     const { final } = bookmarksForRemoval.unsafeCoerce();
-    await writeFile(path.join(process.cwd(), "public/bookmarks.json"), JSON.stringify(final));
+    await saveAllBookmarks(final);
   }
 
   return new NextResponse(null, { status: 204 });
