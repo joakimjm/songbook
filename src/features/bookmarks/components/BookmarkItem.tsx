@@ -38,7 +38,7 @@ export const BookmarkItem = ({ bookmark, isSelected, onSelect, onSelectTag, onRe
             <div className="flex"><input type="checkbox" onChange={() => undefined} checked={isSelected} /></div>
             <div className="flex flex-col">
               <h2 className="flex flex-auto font-bold">
-                <a href={bookmark.url}>{bookmark.title}</a>
+                <a href={bookmark.url} target="_blank">{bookmark.title}</a>
               </h2>
               <div className="flex gap-4">
                 <p className="opacity-50 text-xs">Added {DateTime.fromISO(bookmark.dateAddedUTC).toFormat("LLL dd, yyyy 'at' HH:mm")}</p>
