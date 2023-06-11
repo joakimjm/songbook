@@ -1,10 +1,10 @@
 import type { Bookmark } from "@/app/api/bookmarks/route";
-import { TagRequest } from "@/app/api/bookmarks/tag/route";
+import { TagRequest, UntagRequest } from "@/app/api/bookmarks/tag/route";
 import classNames from "classnames";
 import { NonEmptyList } from "purify-ts";
 import { useMemo, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { HiOutlineTrash, HiPlus } from "react-icons/hi2";
+import { HiMinus, HiOutlineTrash, HiPlus } from "react-icons/hi2";
 import { Button } from "../../../components/Button";
 import { Checkbox } from "../../../components/Checkbox";
 import { Panel } from "../../../components/Panels";
@@ -28,7 +28,7 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
 
   const onSelect = (bookmark: Bookmark): void =>
     setSelected(selection =>
-      selection.includes(bookmark)
+      selection.some(x => x.id === bookmark.id)
         ? selection.filter(x => x !== bookmark)
         : selection.concat(bookmarks.filter(b => isSelfOrParent(bookmark.id, b)))
     )
@@ -45,6 +45,18 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
 
   const onAddTag = async (tag: string) => {
     const request: TagRequest = { tag, bookmarkIds: selectedBookmarks.map(x => x.id) };
+    const response = await fetch(
+      "/api/bookmarks/tag",
+      {
+        method: "POST",
+        body: JSON.stringify(request)
+      }).then(r => r.json());
+
+    setBookmarks(response);
+  }
+
+  const onRemoveTag = async (tag: string) => {
+    const request: UntagRequest = { untag: tag, bookmarkIds: selectedBookmarks.map(x => x.id) };
     const response = await fetch(
       "/api/bookmarks/tag",
       {
@@ -167,8 +179,13 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
                     return;
                   }
 
-                  setSelectedTags(tags => tags.includes(x) ? tags.filter(t => t !== x) : tags.concat(x))
-                  setSelected([]);
+                  if (selectedTags.includes(x)) {
+                    setSelectedTags(selectedTags.filter(t => t !== x))
+                  } else {
+                    setFilterText("");
+                    setSelected([]);
+                    setSelectedTags(selectedTags.concat(x))
+                  }
                 }}
               >
                 {x}
@@ -176,6 +193,10 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
                   className="ml-1"
                   onClick={() => onAddTag(x)}
                 ><HiPlus /></button>}
+                {selectedBookmarks.length > 0 && <button title="Add tag to selection" type="button"
+                  className="ml-1"
+                  onClick={() => onRemoveTag(x)}
+                ><HiMinus /></button>}
               </Tag>
             )}
           </div>
@@ -187,7 +208,7 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
           {filteredBookmarks
             .map(bookmark => ({
               bookmark,
-              isSelected: selectedBookmarks.includes(bookmark)
+              isSelected: selectedBookmarks.some(x => x.id === bookmark.id)
             }))
             .map(({ bookmark, isSelected }) =>
               <BookmarkItem
