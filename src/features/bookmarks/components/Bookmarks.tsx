@@ -134,7 +134,7 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
               disabled={selectedBookmarks.length === 0}
               className="border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white"
               onClick={onPromptForAddTag}>
-              <HiPlus className="inline -ml-1.5 -mt-0.5" /> Add tag
+              <HiPlus className="inline -ml-0.5" /> Add tag
             </Button>
 
             <Button
@@ -165,10 +165,10 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
                 setBookmarks(result);
                 setSelected([]);
               }}>
-              <HiOutlineTrash className="inline -ml-1.5 -mt-0.5" /> Remove
+              <HiOutlineTrash className="inline -ml-0.5" /> Remove
             </Button>
           </div>
-          <div className="flex flex-auto items-center">
+          <div className="flex flex-auto items-center gap-1">
             {usedTags.map(x =>
               <Tag
                 key={x}
