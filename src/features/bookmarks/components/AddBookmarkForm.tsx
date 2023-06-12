@@ -1,5 +1,7 @@
 import { AddBookmarkRequest } from "@/app/api/bookmarks/route";
+import { Button } from "@/components/Button";
 import { InputText } from "@/components/InputText";
+import { HiPlus } from "react-icons/hi2";
 
 interface AddBookmarkFormProps {
   onSubmit: (request: AddBookmarkRequest) => void;
@@ -22,6 +24,6 @@ export const AddBookmarkForm = ({ onSubmit }: AddBookmarkFormProps) => (
       <InputText name="bookmarkUrl" placeholder="URL" />
       <InputText name="bookmarkTitle" placeholder="Title" />
     </div>
-    <input type="submit" hidden />
+    <Button className="self-end border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white" type="submit"><HiPlus className="inline -ml-0.5" /> Add bookmark</Button>
   </form>
 )

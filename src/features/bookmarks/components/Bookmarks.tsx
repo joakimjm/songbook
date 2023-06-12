@@ -183,7 +183,7 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
             {usedTags.map(x =>
               <Tag
                 key={x}
-                className={classNames(" border", selectedTags.includes(x) ? "border-blue-500 bg-blue-200 text-blue-900" : "")}
+                className={classNames("border", selectedTags.includes(x) ? "border-blue-500 bg-blue-200 text-blue-900" : "border-gray-300")}
                 onClick={e => {
                   const clicked = e.target as HTMLElement;
                   if (clicked.closest("button")) {
@@ -200,24 +200,18 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
                 }}
               >
                 {x}
-                {selectedBookmarks.length > 0 && <button title="Add tag to selection" type="button"
-                  className="ml-1"
+                {selectedBookmarks.length > 0 && <button title="Tag selection" type="button"
+                  className="ml-1 bg-blue-200 text-blue-700 rounded-full -mr-0.5"
                   onClick={() => onAddTag(x)}
                 ><HiPlus /></button>}
-                {selectedBookmarks.length > 0 && <button title="Add tag to selection" type="button"
-                  className="ml-1"
+                {selectedBookmarks.length > 0 && <button title="Untag selection" type="button"
+                  className="ml-1 bg-red-200 text-red-700 rounded-full -mr-0.5"
                   onClick={() => onRemoveTag(x)}
                 ><HiMinus /></button>}
               </Tag>
             )}
           </div>
         </Panel>
-
-        {showAddBookmarkForm && (
-          <Panel>
-            <AddBookmarkForm onSubmit={onAddBookmark} />
-          </Panel>
-        )}
       </header>
 
       <main className="overflow-scroll">
@@ -258,7 +252,7 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
         (
           <aside>
             <Panel className="flex gap-4">
-              <h1>Grooming</h1>
+              <h1 className="font-bold">Grooming</h1>
 
               <Button onClick={() => {
                 console.log("what the rfuck");
@@ -270,9 +264,17 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
 
               <Grooming bookmarks={bookmarks} onRename={onRename} />
             </Panel>
+
           </aside>
         )
       }
+      {showAddBookmarkForm && (
+        <aside>
+          <Panel>
+            <AddBookmarkForm onSubmit={onAddBookmark} />
+          </Panel>
+        </aside>
+      )}
 
     </div>
   )
