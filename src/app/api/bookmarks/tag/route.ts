@@ -10,7 +10,7 @@ export interface TagRequest {
 const tag = ({ bookmarkIds, tag }: TagRequest, bookmarks: Bookmark[]) =>
   bookmarks.map(x =>
     bookmarkIds.includes(x.id)
-      ? { ...x, tags: (x.tags && !x.tags.includes(tag)) ? x.tags.concat(tag) : [tag] }
+      ? { ...x, tags: !x.tags ? [tag] : x.tags.includes(tag) ? x.tags : x.tags.concat(tag) }
       : x
   )
 
