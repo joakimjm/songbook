@@ -1,17 +1,15 @@
-import { getBookmarks } from "@/features/bookmarks/bookmark-persistence";
+import { getBookmarks, getLinks, saveAllBookmarks } from "@/features/bookmarks/bookmark-persistence";
 import { NextResponse } from "next/server";
 
-interface BookmarkLinks {
+export interface BookmarkLinks {
   self: string;
   rename: string;
 }
 export type Bookmark = {
-  index: number;
   title: string;
   url?: string;
   id: number;
   parentId: string;
-  dateAddedLocal: string;
   dateAddedUTC: string;
   tags?: string[],
   links: BookmarkLinks
@@ -19,3 +17,20 @@ export type Bookmark = {
 
 export const GET = async (_: Request) =>
   NextResponse.json(await getBookmarks());
+
+export type AddBookmarkRequest = Omit<Bookmark, "tags" | "links" | "id" | "dateAddedLocal" | "dateAddedUTC" | "parentId">;
+export const POST = async (req: Request) => {
+  const request = await req.json() as AddBookmarkRequest;
+  const bookmarks = (await getBookmarks()).sort((a, b) => a.id - b.id);
+  const id = bookmarks[bookmarks.length - 1].id + 1;
+  const bookmark: Bookmark = {
+    ...request,
+    id,
+    dateAddedUTC: new Date().toISOString(),
+    parentId: "1",
+    links: getLinks(id)
+  };
+
+  await saveAllBookmarks(bookmarks.concat(bookmark));
+  return NextResponse.json(await getBookmarks());
+};

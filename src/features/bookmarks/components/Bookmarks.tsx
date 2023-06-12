@@ -1,4 +1,4 @@
-import type { Bookmark } from "@/app/api/bookmarks/route";
+import type { AddBookmarkRequest, Bookmark } from "@/app/api/bookmarks/route";
 import { TagRequest, UntagRequest } from "@/app/api/bookmarks/tag/route";
 import classNames from "classnames";
 import { NonEmptyList } from "purify-ts";
@@ -6,11 +6,12 @@ import { useMemo, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { HiMinus, HiOutlineTrash, HiPlus } from "react-icons/hi2";
 import { Button } from "../../../components/Button";
-import { Checkbox } from "../../../components/Checkbox";
+import { InputCheckbox } from "../../../components/InputCheckbox";
 import { Panel } from "../../../components/Panels";
 import { Tag } from "../../../components/Tag";
 import { getBookmarksWithTags, getDuplicates, getUniqueTags } from "../bookmark-utils";
 import { getBookmarksForRemoval, isFilterMatch, isSelfOrParent } from "../utils";
+import { AddBookmarkForm } from "./AddBookmarkForm";
 import { BookmarkItem } from "./BookmarkItem";
 import { Grooming } from "./Grooming";
 
@@ -25,6 +26,7 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
   const [selectedBookmarks, setSelected] = useState<Bookmark[]>([]);
   const [showFolders, setShowFolders] = useState<boolean>(false);
   const [showGroomingTools, setShowGroomingTools] = useState<boolean>(false);
+  const [showAddBookmarkForm, setShowAddBookmarkForm] = useState<boolean>(false);
 
   const onSelect = (bookmark: Bookmark): void =>
     setSelected(selection =>
@@ -32,6 +34,17 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
         ? selection.filter(x => x !== bookmark)
         : selection.concat(bookmarks.filter(b => isSelfOrParent(bookmark.id, b)))
     )
+
+  const onAddBookmark = async (data: AddBookmarkRequest) => {
+    const response = await fetch(
+      "/api/bookmarks",
+      {
+        method: "POST",
+        body: JSON.stringify(data)
+      }).then(r => r.json());
+
+    setBookmarks(response);
+  }
   const onRename = async (bookmark: Bookmark, title: string) => {
     const response = await fetch(bookmark.links.rename, {
       method: "PUT",
@@ -118,15 +131,16 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
                 setSelected([]);
               }} />
           </div>
-          <Panel className="border-l">
-            <Checkbox label="Folders" checked={showFolders} onChange={() => setShowFolders(!showFolders)} />
-            <Checkbox label="Grooming" checked={showGroomingTools} onChange={() => setShowGroomingTools(!showGroomingTools)} />
+          <Panel className="border-l whitespace-nowrap">
+            <InputCheckbox label="Folders" checked={showFolders} onChange={() => setShowFolders(!showFolders)} />
+            <InputCheckbox label="Grooming" checked={showGroomingTools} onChange={() => setShowGroomingTools(!showGroomingTools)} />
+            <InputCheckbox label="Add bookmarks" checked={showAddBookmarkForm} onChange={() => setShowAddBookmarkForm(!showAddBookmarkForm)} />
           </Panel>
         </div>
 
         <Panel className="flex flex-col mb-2 gap-2">
-          <div className="flex gap-4">
-            <Checkbox label={selectedBookmarks.length > 0 ? "Deselect all" : `Select all (${filteredBookmarks.length})`}
+          <div className="flex gap-1">
+            <InputCheckbox label={selectedBookmarks.length > 0 ? "Deselect all" : `Select all (${filteredBookmarks.length})`}
               checked={selectedBookmarks.length > 0}
               onChange={() => selectedBookmarks.length > 0 ? setSelected([]) : setSelected(filteredBookmarks)} />
 
@@ -168,11 +182,11 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
               <HiOutlineTrash className="inline -ml-0.5" /> Remove
             </Button>
           </div>
-          <div className="flex flex-auto items-center gap-1">
+          <div className="flex flex-auto items-center gap-1 flex-wrap">
             {usedTags.map(x =>
               <Tag
                 key={x}
-                className={classNames("border", selectedTags.includes(x) ? "border-blue-500 bg-blue-200 text-blue-900" : "")}
+                className={classNames(" border", selectedTags.includes(x) ? "border-blue-500 bg-blue-200 text-blue-900" : "")}
                 onClick={e => {
                   const clicked = e.target as HTMLElement;
                   if (clicked.closest("button")) {
@@ -201,6 +215,12 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
             )}
           </div>
         </Panel>
+
+        {showAddBookmarkForm && (
+          <Panel>
+            <AddBookmarkForm onSubmit={onAddBookmark} />
+          </Panel>
+        )}
       </header>
 
       <main className="overflow-scroll">
