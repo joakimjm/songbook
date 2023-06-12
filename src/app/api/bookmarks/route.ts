@@ -9,7 +9,6 @@ export type Bookmark = {
   title: string;
   url?: string;
   id: number;
-  parentId: string;
   dateAddedUTC: string;
   tags?: string[],
   links: BookmarkLinks
@@ -27,7 +26,6 @@ export const POST = async (req: Request) => {
     ...request,
     id,
     dateAddedUTC: new Date().toISOString(),
-    parentId: "1",
     links: getLinks(id)
   };
 

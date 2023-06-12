@@ -14,16 +14,13 @@ export const tryGetBookmarkById = curry(
 export const isFilterMatch = (filterText: string, bookmark: Bookmark) =>
   bookmark.tags?.some(x => x.toLocaleLowerCase().includes(filterText)) || bookmark.title.toLocaleLowerCase().includes(filterText)
 
-export const isSelfOrParent = (id: number, bookmark: Bookmark) =>
-  bookmark.id === id || bookmark.parentId === String(id);
-
 interface RemoveResult {
   final: Bookmark[];
   removed: Bookmark[];
 }
 
 export const getBookmarksForRemoval = (bookmarks: Bookmark[], removeId: number): RemoveResult =>
-  bookmarks.reduce((acc, bookmark) => isSelfOrParent(removeId, bookmark)
+  bookmarks.reduce((acc, bookmark) => bookmark.id === removeId
     ? ({
       ...acc,
       removed: acc.removed.concat(bookmark),

@@ -10,7 +10,7 @@ import { InputCheckbox } from "../../../components/InputCheckbox";
 import { Panel } from "../../../components/Panels";
 import { Tag } from "../../../components/Tag";
 import { getBookmarksWithTags, getDuplicates, getUniqueTags } from "../bookmark-utils";
-import { getBookmarksForRemoval, isFilterMatch, isSelfOrParent } from "../utils";
+import { getBookmarksForRemoval, isFilterMatch } from "../utils";
 import { AddBookmarkForm } from "./AddBookmarkForm";
 import { BookmarkItem } from "./BookmarkItem";
 import { Grooming } from "./Grooming";
@@ -24,7 +24,6 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
   const [filterTextInput, setFilterText] = useState<string>("");
   const filterText = filterTextInput.trim().toLocaleLowerCase();
   const [selectedBookmarks, setSelected] = useState<Bookmark[]>([]);
-  const [showFolders, setShowFolders] = useState<boolean>(false);
   const [showGroomingTools, setShowGroomingTools] = useState<boolean>(false);
   const [showAddBookmarkForm, setShowAddBookmarkForm] = useState<boolean>(false);
 
@@ -32,7 +31,7 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
     setSelected(selection =>
       selection.some(x => x.id === bookmark.id)
         ? selection.filter(x => x !== bookmark)
-        : selection.concat(bookmarks.filter(b => isSelfOrParent(bookmark.id, b)))
+        : selection.concat(bookmarks.filter(b => b.id === bookmark.id))
     )
 
   const onAddBookmark = async (data: AddBookmarkRequest) => {
@@ -113,8 +112,7 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
         ? !isFilterMatch(filterText.substring(1), x)
         : isFilterMatch(filterText, x)
     )
-    .filter(x => selectedTags.length === 0 || x.tags?.some(t => selectedTags.includes(t)))
-    .filter(x => showFolders || x.url);
+    .filter(x => selectedTags.length === 0 || x.tags?.some(t => selectedTags.includes(t)));
 
   return (
     <div className="flex flex-col h-full">
@@ -132,7 +130,6 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
               }} />
           </div>
           <Panel className="border-l whitespace-nowrap">
-            <InputCheckbox label="Folders" checked={showFolders} onChange={() => setShowFolders(!showFolders)} />
             <InputCheckbox label="Grooming" checked={showGroomingTools} onChange={() => setShowGroomingTools(!showGroomingTools)} />
             <InputCheckbox label="Add bookmarks" checked={showAddBookmarkForm} onChange={() => setShowAddBookmarkForm(!showAddBookmarkForm)} />
           </Panel>

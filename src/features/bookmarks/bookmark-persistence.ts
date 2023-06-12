@@ -23,7 +23,6 @@ export const saveAllBookmarks = async (bookmarks: Bookmark[]) => {
     .map(({ links, ...x }): Omit<Bookmark, "links"> => ({
       id: x.id,
       dateAddedUTC: x.dateAddedUTC,
-      parentId: x.parentId,
       title: x.title,
       url: x.url,
       tags: x.tags,
