@@ -30,7 +30,7 @@ export const Bookmarks = ({ bookmarks: initialBookmarks }: BookmarksProps) => {
   const onSelect = (bookmark: Bookmark): void =>
     setSelected(selection =>
       selection.some(x => x.id === bookmark.id)
-        ? selection.filter(x => x !== bookmark)
+        ? selection.filter(x => x.id !== bookmark.id)
         : selection.concat(bookmarks.filter(b => b.id === bookmark.id))
     )
 
