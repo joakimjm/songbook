@@ -27,6 +27,7 @@ export const saveAllBookmarks = async (bookmarks: Bookmark[]) => {
       url: x.url,
       tags: x.tags,
     }))
+    .filter(x => x.url)
     .sort((a, b) => a.title.localeCompare(b.title));
 
   return await writeFile(path.join(process.cwd(), "public/bookmarks.json"), JSON.stringify(data));
