@@ -41,8 +41,8 @@ const toTitleCase = (value: string) =>
       txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase()
   )
 
-const removeChords = (value: string) =>
-  value.replace(/chords/is, "").trim()
+const removeRedundantWords = (value: string) =>
+  value.replace(/chords|acoustic/isg, "").trim()
 
 const removeParentesizedNumbers = (value: string) =>
   value.replace(/\(\d+\)/is, "").trim();
@@ -52,7 +52,7 @@ const stages = [
   tryCleanOtherShittyBookmarkManager,
   removeParentesizedNumbers,
   toTitleCase,
-  removeChords,
+  removeRedundantWords,
 ]
 
 export const tryGetGroomedTitle = (bookmark: Bookmark): Maybe<string> => {
