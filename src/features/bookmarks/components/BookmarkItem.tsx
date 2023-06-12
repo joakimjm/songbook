@@ -34,23 +34,26 @@ export const BookmarkItem = ({ bookmark, isSelected, onSelect, onSelectTag, onRe
     }}>
       {bookmark.url
         ? (
-          <div className="flex flex-auto gap-4">
+          <div className="flex flex-auto gap-4 text-sm sm:text-base">
             <div className="flex"><input type="checkbox" onChange={() => undefined} checked={isSelected} /></div>
             <div className="flex flex-col">
               <h2 className="flex flex-auto font-bold">
                 <a href={bookmark.url} target="_blank">{bookmark.title}</a>
               </h2>
               <div className="flex gap-4">
-                <p className="opacity-50 text-xs">Added {DateTime.fromISO(bookmark.dateAddedUTC).toFormat("LLL dd, yyyy 'at' HH:mm")}</p>
+                <p className="opacity-50 text-xs hidden sm:block">Added {DateTime.fromISO(bookmark.dateAddedUTC).toFormat("LLL dd, yyyy 'at' HH:mm")}</p>
                 {
                   bookmark.tags &&
-                  <div className="flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-1">
                     {bookmark.tags.map((tag, i) =>
                       <Fragment key={tag}>
                         {i !== 0 && <svg viewBox="0 0 2 2" className="h-0.5 w-0.5 fill-current">
                           <circle cx="1" cy="1" r="1"></circle>
                         </svg>}
-                        <button type="button" onClick={() => onSelectTag(tag)} className="text-xs">{tag}</button>
+                        <button
+                          type="button"
+                          onClick={() => onSelectTag(tag)}
+                          className="whitespace-nowrap text-xs">{tag}</button>
                       </Fragment>
                     )
                     }
