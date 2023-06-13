@@ -14,7 +14,7 @@ interface GroomingProps {
 export const Grooming = ({ bookmarks, onRename }: GroomingProps) => {
   const [groomables, setGroomables] = useState(
     Maybe.catMaybes(bookmarks.map(bookmark =>
-      tryGetGroomedTitle(bookmark)
+      tryGetGroomedTitle(bookmark.title)
         .map(groomedTitle => ({
           ...bookmark,
           groomedTitle
@@ -68,7 +68,7 @@ export const Grooming = ({ bookmarks, onRename }: GroomingProps) => {
                 <p>
                   <HiArrowDown className="inline w-8 h-8" />
                 </p>
-                <p className="whitespace-nowrap overflow-hidden text-ellipsis font-bold">{tryGetGroomedTitle(groomable).unsafeCoerce()}</p>
+                <p className="whitespace-nowrap overflow-hidden text-ellipsis font-bold">{tryGetGroomedTitle(groomable.title).unsafeCoerce()}</p>
               </div>
             )
             .extract()

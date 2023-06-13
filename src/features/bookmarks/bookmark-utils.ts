@@ -55,12 +55,11 @@ const stages = [
   removeRedundantWords,
 ]
 
-export const tryGetGroomedTitle = (bookmark: Bookmark): Maybe<string> => {
-  return Just(
+export const tryGetGroomedTitle = (title: string): Maybe<string> =>
+  Just(
     stages.reduce(
       (acc, step) => step(acc),
-      bookmark.title
+      title
     )
   )
-    .filter(x => x !== bookmark.title)
-}
+    .filter(x => x !== title)

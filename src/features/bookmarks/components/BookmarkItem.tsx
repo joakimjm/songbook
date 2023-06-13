@@ -64,7 +64,7 @@ export const BookmarkItem = ({ bookmark, isSelected, onSelect, onSelectTag, onRe
 
             <div className="flex flex-auto justify-end items-center gap-2">
               {
-                tryGetGroomedTitle(bookmark)
+                tryGetGroomedTitle(bookmark.title)
                   .map(groomedTitle =>
                     <button
                       type="button"
